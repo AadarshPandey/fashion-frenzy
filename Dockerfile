@@ -1,7 +1,6 @@
 # ---------- BUILD STAGE ----------
 FROM python:3.13-slim AS builder
 
-# Environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/root/.local/bin:$PATH" \
@@ -31,7 +30,6 @@ RUN .venv/bin/playwright install chromium --with-deps
 # ---------- RUNTIME STAGE ----------
 FROM python:3.13-slim AS runtime
 
-# Environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PATH="/app/.venv/bin:$PATH" \
