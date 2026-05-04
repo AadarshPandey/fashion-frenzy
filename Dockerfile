@@ -1,32 +1,55 @@
-# Use Ubuntu 24.04 LTS as base image
-FROM ubuntu:24.04
+# Use Python slim image — Python is pre-installed, much faster than ubuntu base
+FROM python:3.13-slim
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Install system dependencies (Python 3.12 is default in Ubuntu 24.04)
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-venv \
-    python3-pip \
+# Install only the minimal system deps needed for Playwright Chromium + Pillow
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    wget \
-    gnupg \
-    nodejs \
-    npm \
+    # Playwright Chromium runtime dependencies
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libdbus-1-3 \
+    libxkbcommon0 \
+    libatspi2.0-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    libxshmfence1 \
+    # Pillow dependencies
+    libjpeg62-turbo \
+    libwebp7 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for fast Python package management
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Set working directory
 WORKDIR /app
 
-# Copy project files
+# Copy dependency files first (for Docker layer caching)
 COPY pyproject.toml uv.lock ./
+
+# Create virtual environment and install dependencies
+RUN uv venv .venv --python python3
+RUN uv sync --frozen || uv sync
+
+# Install Playwright Chromium browser (for crawl4ai scraper)
+RUN .venv/bin/playwright install chromium || true
+
+# Copy application source code
 COPY main.py ./
 COPY modules/ ./modules/
 COPY banana_list.txt ./
@@ -39,14 +62,6 @@ RUN mkdir -p user_wardrobe/above_head \
     user_wardrobe/lower_body \
     user_wardrobe/feet \
     user_wardrobe/special_overlap
-
-# Create virtual environment and install dependencies
-RUN uv venv .venv --python python3
-RUN uv sync --frozen || uv sync
-
-# Install Playwright browsers for crawl4ai
-RUN .venv/bin/playwright install chromium || true
-RUN .venv/bin/playwright install-deps chromium || true
 
 # Expose Streamlit port
 EXPOSE 8501

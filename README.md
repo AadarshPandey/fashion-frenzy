@@ -218,23 +218,23 @@ Open your browser at `http://localhost:8501`
 ### Pull from Docker Hub
 
 ```bash
-docker pull aadarshpandey/fashion-frenzy:v2
+docker pull aadarshpandey/fashion-frenzy:v3
 ```
 
 ### Run Container
 
 ```bash
-docker run -p 8501:8501 aadarshpandey/fashion-frenzy:v2
+docker run -p 8501:8501 aadarshpandey/fashion-frenzy:v3
 ```
 
 ### Build Locally
 
 ```bash
 # Build the image
-docker build -t aadarshpandey/fashion-frenzy:v2 .
+docker build -t aadarshpandey/fashion-frenzy:v3 .
 
 # Run the container
-docker run -p 8501:8501 aadarshpandey/fashion-frenzy:v2
+docker run -p 8501:8501 aadarshpandey/fashion-frenzy:v3
 ```
 
 Open `http://localhost:8501` in your browser.
