@@ -13,18 +13,20 @@ CATEGORIES = {
     "Upper Body": "upper_body",
     "Lower Body": "lower_body",
     "Feet": "feet",
-    "Special: Saree/Drapes (Overlap)": "special_overlap" 
+    "Special: Saree/Drapes (Overlap)": "special_overlap",
 }
+
 
 def init_wardrobe():
     """Ensures all necessary folders exist."""
     if not os.path.exists(WARDROBE_ROOT):
         os.makedirs(WARDROBE_ROOT)
-    
+
     for folder in CATEGORIES.values():
         path = os.path.join(WARDROBE_ROOT, folder)
         if not os.path.exists(path):
             os.makedirs(path)
+
 
 def save_uploaded_item(uploaded_file, category):
     """Saves the uploaded image to the correct folder."""
@@ -33,18 +35,19 @@ def save_uploaded_item(uploaded_file, category):
 
     folder_name = CATEGORIES.get(category, "misc")
     save_path = os.path.join(WARDROBE_ROOT, folder_name)
-    
+
     # Ensure directory exists (redundancy check)
     os.makedirs(save_path, exist_ok=True)
 
     # Create a full file path
     file_path = os.path.join(save_path, uploaded_file.name)
-    
+
     # Save the file
     with open(file_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
-    
+
     return file_path
+
 
 def get_wardrobe_inventory():
     """Returns a text summary of what is in the wardrobe for the LLM context."""
@@ -58,6 +61,7 @@ def get_wardrobe_inventory():
                     inventory.append(f"Category {category}: {', '.join(files)}")
     return "\n".join(inventory)
 
+
 def delete_item(file_path):
     """Deletes an item from the wardrobe given its full file path."""
     try:
@@ -68,3 +72,4 @@ def delete_item(file_path):
             return False, "File not found."
     except Exception as e:
         return False, f"Error deleting file: {str(e)}"
+
